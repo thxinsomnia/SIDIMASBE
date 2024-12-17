@@ -34,8 +34,11 @@ func main() {
 
 	api := r.Group("/api")
 	api.Use(middlewares.JWTVerif())
-	api.GET("/products", productcontroller.Getproduct)
+	api.GET("/pr", productcontroller.GetProduct)
+	api.GET("/pr/:id", productcontroller.GetProductByID)
 	api.POST("/addpr", productcontroller.Addproduct)
+	api.PUT("/editpr/:id", productcontroller.UpdateProduct)
+	api.DELETE("/delpr/:id", productcontroller.DeleteProduct)
 
 	// Serve the Swagger UI at /swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
