@@ -16,7 +16,7 @@ import (
 //	@Produce		json
 //	@Success		200	{array}	object{ID=int, nama_barang=string, harga=int}	"Successfully retrieved list of products"
 //	@Router			/api/products [get]
-func Index(c *gin.Context) {
+func Getproduct(c *gin.Context) {
     data := []map[string]interface{}{
         {
             "id":          1,

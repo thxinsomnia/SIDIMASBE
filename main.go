@@ -34,11 +34,11 @@ func main() {
 
 	api := r.Group("/api")
 	api.Use(middlewares.JWTVerif())
-	api.GET("/products", productcontroller.Index)
+	api.GET("/products", productcontroller.Getproduct)
+	api.POST("/addpr", productcontroller.Addproduct)
 
 	// Serve the Swagger UI at /swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
 
-//mysql -u root -p -h localhost -P 3307 (kode untuk loogin mysql)
