@@ -1,0 +1,164 @@
+basePath: /api
+definitions:
+  models.User:
+    properties:
+      id:
+        type: integer
+      nama_lengkap:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: loveyouelysia@gmail.com
+    name: Elysia
+  description: This is the API server for the GOjawet application.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: GOjawet API
+  version: "1.0"
+paths:
+  /api:
+    get:
+      consumes:
+      - application/json
+      description: verify JWT token from the cookie. Client should send "Cookie" header
+        with the format "token=<JWT token>".
+      parameters:
+      - description: JWT token
+        in: header
+        name: Cookie
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully verified
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify JWT token
+      tags:
+      - authentication
+  /api/products:
+    get:
+      consumes:
+      - application/json
+      description: get list of products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved list of products
+          schema:
+            items:
+              properties:
+                ' harga':
+                  type: integer
+                ' nama_barang':
+                  type: string
+                ID:
+                  type: integer
+              type: object
+            type: array
+      summary: List products
+      tags:
+      - products
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login a user by taking a JSON input
+      parameters:
+      - description: User to login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login a user
+      tags:
+      - authentication
+  /logout:
+    get:
+      consumes:
+      - application/json
+      description: clear JWT token from the cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged out
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: register a new user by taking a JSON input
+      parameters:
+      - description: User to register
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully registered
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - authentication
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
