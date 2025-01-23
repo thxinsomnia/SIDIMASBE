@@ -1,9 +1,14 @@
-package main
+package handler // ganti ke main kalau mau di run local
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"SIDIMASBE/controllers/authcontroller"
 	"SIDIMASBE/controllers/suppliercontroller"
 	_ "SIDIMASBE/docs"
@@ -11,37 +16,47 @@ import (
 	"SIDIMASBE/models"
 )
 
-// @title GOjawet API
-// @version 1.0
-// @description This is the API server for the GOjawet application.
-// @contact.name Elysia
-// @contact.email loveyouelysia@gmail.com
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @host localhost:8080
-// @BasePath /api
-// @schemes http
-// @SecurityDefinitions.apikey Bearer
-// @in header
-// @name Authorization
-func main() {
+func init() {
+	// Connect to Database
 	models.ConnectDatabase()
-	r := gin.Default()
-
-	r.POST("/login", authcontroller.Login)
-	r.POST("/register", authcontroller.Register)
-	r.GET("/logout", authcontroller.Logout)
-
-	api := r.Group("/api")
-	api.Use(middlewares.JWTVerif())
-	api.GET("/supl", productcontroller.GetSupplier)
-	api.GET("/supl/:id", productcontroller.GetSupplierByID)
-	api.POST("/asupl", productcontroller.Addsupplier)
-	api.PUT("/esupl/:id", productcontroller.UpdateSupplier)
-	api.DELETE("/dsupl/:id", productcontroller.DeleteSupplier)
-
-	// Serve the Swagger UI at /swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
 
+// Handler for deployment - Menerima request dan menangani routing dengan CORS
+func Handler(w http.ResponseWriter, r *http.Request) {
+	// Set up Gin router di dalam handler
+	router := gin.Default()
+
+	// Register routes setelah router diinisialisasi
+	router.POST("/login", authcontroller.Login)
+	router.POST("/register", authcontroller.Register)
+	router.GET("/logout", authcontroller.Logout)
+
+	api := router.Group("/api")
+	api.Use(middlewares.JWTVerif())
+	api.GET("/supl", suppliercontroller.GetSupplier)
+	api.GET("/supl/:id", suppliercontroller.GetSupplierByID)
+	api.POST("/asupl", suppliercontroller.Addsupplier)
+	api.PUT("/esupl/:id", suppliercontroller.UpdateSupplier)
+	api.DELETE("/dsupl/:id", suppliercontroller.DeleteSupplier)
+
+	// Serve the Swagger UI at /swagger
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Handle HTTP request
+	router.ServeHTTP(w, r)
+}
+
+func main() {
+	// Start server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("Server is running on port %s\n", port)
+
+	// Gunakan handler untuk menangani request HTTP
+	http.HandleFunc("/", Handler) // Memetakan path "/" ke Handler
+
+	// Mulai server
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}

@@ -1,4 +1,4 @@
-package productcontroller
+package suppliercontroller
 
 import (
 	"fmt"
