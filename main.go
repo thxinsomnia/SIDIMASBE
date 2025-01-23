@@ -5,7 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"SIDIMASBE/controllers/authcontroller"
-	"SIDIMASBE/controllers/productcontroller"
+	"SIDIMASBE/controllers/suppliercontroller"
 	_ "SIDIMASBE/docs"
 	"SIDIMASBE/middlewares"
 	"SIDIMASBE/models"
@@ -34,8 +34,11 @@ func main() {
 
 	api := r.Group("/api")
 	api.Use(middlewares.JWTVerif())
-	api.GET("/products", productcontroller.Getproduct)
-	api.POST("/addpr", productcontroller.Addproduct)
+	api.GET("/supl", productcontroller.GetSupplier)
+	api.GET("/supl/:id", productcontroller.GetSupplierByID)
+	api.POST("/asupl", productcontroller.Addsupplier)
+	api.PUT("/esupl/:id", productcontroller.UpdateSupplier)
+	api.DELETE("/dsupl/:id", productcontroller.DeleteSupplier)
 
 	// Serve the Swagger UI at /swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

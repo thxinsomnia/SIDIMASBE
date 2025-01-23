@@ -87,6 +87,10 @@ func Register(c *gin.Context) {
         return
     }
 
+    if userInput.Role == "" {
+        userInput.Role = "supplier"
+    }
+
     hashPassword, _ := bcrypt.GenerateFromPassword([]byte(userInput.Password), bcrypt.DefaultCost)
     userInput.Password = string(hashPassword)
 
