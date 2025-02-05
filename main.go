@@ -10,6 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"SIDIMASBE/controllers/authcontroller"
+	"SIDIMASBE/controllers/matscontroller"
 	"SIDIMASBE/controllers/suppliercontroller"
 	_ "SIDIMASBE/docs"
 	"SIDIMASBE/middlewares"
@@ -38,6 +39,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	api.POST("/asupl", suppliercontroller.Addsupplier)
 	api.PUT("/esupl/:id", suppliercontroller.UpdateSupplier)
 	api.DELETE("/dsupl/:id", suppliercontroller.DeleteSupplier)
+	api.POST("/addbahan", matscontroller.Addbahan)
+	api.GET("/bahan", matscontroller.GetAllBahan)
+	api.GET("/bahan/:id", matscontroller.GetBahanByID)
+	api.PUT("/ebahan/:id", matscontroller.EditBahan)
+	api.DELETE("/dbahan/:id", matscontroller.HapusBahan)
 
 	// Serve the Swagger UI at /swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

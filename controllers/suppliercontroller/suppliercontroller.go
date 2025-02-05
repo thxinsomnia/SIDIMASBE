@@ -4,26 +4,37 @@ import (
 	"fmt"
 	"strconv"
 
-	"net/http"
-	"github.com/gin-gonic/gin"
 	"SIDIMASBE/models"
-)
+	"net/http"
 
+	"github.com/gin-gonic/gin"
+)
 
 //ambil semua supplier
 func GetSupplier(c *gin.Context) {
-	var supplier []models.Supplier
+	var suppliers []models.Supplier
 
-	// Fetch all supplier from the database
-	if err := models.DB.Find(&supplier).Error; err != nil {
+	if err := models.DB.Preload("Materials").Find(&suppliers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Products": supplier})
+	// Proses untuk hanya menampilkan nama_bahan dalam bahans
+	for i := range suppliers {
+		var simplifiedMaterials []models.SimplifiedMaterial
+		for _, material := range suppliers[i].Materials {
+			simplifiedMaterials = append(simplifiedMaterials, models.SimplifiedMaterial{
+				Nama_bahan: material.Nama_bahan,
+			})
+		}
+		suppliers[i].Penyuplai = simplifiedMaterials
+	}
+
+	c.JSON(http.StatusOK, gin.H{"Suppliers": suppliers})
 }
 
-// GetProductByID retrieves a supplier by its ID from the database
+
+
 func GetSupplierByID(c *gin.Context) {
 	supplierID := c.Param("id") // Assuming the supplier ID is passed as a URL parameter
 
@@ -137,6 +148,8 @@ func GenerateUserID() (string, error) {
 func Addsupplier(c *gin.Context) {
 	var userInput models.Supplier
 
+	userInput.ID_supplier = GetNextAvailableID()
+
 	// Generate User ID baru dengan format yang diinginkan
 	userID, err := GenerateUserID()
 	if err != nil {
@@ -167,4 +180,21 @@ func Addsupplier(c *gin.Context) {
 
 	// Respons sukses
 	c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Supplier Berhasil"})
+}
+
+func GetNextAvailableID() int64 {
+	var id int64
+	models.DB.Raw(`
+		SELECT MIN(t1.id_supplier + 1) AS next_id
+		FROM suppliers t1
+		LEFT JOIN suppliers t2 ON t1.id_supplier + 1 = t2.id_supplier
+		WHERE t2.id_supplier IS NULL
+	`).Scan(&id)
+
+	// Jika tidak ada ID kosong, ambil ID terbesar + 1
+	if id == 0 {
+		models.DB.Raw(`SELECT COALESCE(MAX(id_supplier), 0) + 1 FROM suppliers`).Scan(&id)
+	}
+
+	return id
 }

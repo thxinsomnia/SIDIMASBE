@@ -1,4 +1,4 @@
-package productcontroller
+package matscontroller
 
 import (
 	"fmt"
@@ -12,207 +12,172 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetProducts retrieves all materials from the database
-func GetMaterial(c *gin.Context) {
-	var materials []models.Material
+//fungsi ini untuk mendapatkan semua data bahan
+func GetAllBahan(c *gin.Context) {
+    var materials []models.Material
 
-	// Fetch all materials from the database
-	if err := models.DB.Find(&materials).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-		return
-	}
+    if err := models.DB.Preload("Supplier").Find(&materials).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"Material": materials})
-}
-
-// GetProductByID retrieves a supplier by its ID from the database
-func GetMaterialByID(c *gin.Context) {
-	supplierID := c.Param("id") // Assuming the supplier ID is passed as a URL parameter
-
-	var supplier models.Material
-
-	// Find the supplier by ID
-	if err := models.DB.First(&supplier, supplierID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"Message": "Material Tidak Ditemukan!"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"Material": supplier})
-}
-
-// func Addmaterial(c *gin.Context) {
-//     var userInput models.Material
-//     if err := c.ShouldBindJSON(&userInput); err != nil {
-//         c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
-//         return
-//     }
-
-//     if err := models.DB.Create(&userInput).Error; err != nil {
-//         c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-//         return
-//     }
-
-//     c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Suppplier Berhasil"})
-// }
-
-// UpdateProduct updates an existing supplier in the database
-func UpdateMaterial(c *gin.Context) {
-	var userInput models.Material
-	materialID := c.Param("id") // Assuming the supplier ID is passed as a URL parameter
-
-	// Bind the JSON input to the userInput struct
-	if err := c.ShouldBindJSON(&userInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
-		return
-	}
-
-	// Find the supplier by ID
-	var material models.Material
-	if err := models.DB.First(&material, materialID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"Message": "Material Tidak Ditemukan"})
-		return
-	}
-
-	// Update the material fields
-	material.Nama_bahan = userInput.Nama_bahan
-	material.Jumlah = userInput.Jumlah
-	material.Asal_bahan = userInput.Asal_bahan
-	material.Kategori = userInput.Kategori
-	material.Status = userInput.Status
-	material.Tanggal = userInput.Tanggal
-	// Add other fields as necessary
-
-	// Save the updated material to the database
-	if err := models.DB.Save(&material).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"Message": "Update Data Material Berhasil"})
-}
-
-// DeleteProduct deletes a material from the database
-func DeleteMaterial(c *gin.Context) {
-	materialID := c.Param("id") // Assuming the supplier ID is passed as a URL parameter
-
-	// Find the supplier by ID
-	var material models.Material
-	if err := models.DB.First(&material, materialID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"Message": "Material Tidak Ditemukan!"})
-		return
-	}
-
-	// Delete the supplier from the database
-	if err := models.DB.Delete(&material).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"Message": "Hapus Data Material Berhasil"})
-}
-
-func GenerateUserID() (string, error) {
-	var lastUserID string
-	err := models.DB.Model(&models.Material{}).Order("id_bahan desc").Limit(1).Pluck("id_bahan", &lastUserID).Error
-	if err != nil {
-		return "", err // Jika tidak ada supplier sebelumnya, ID pertama bisa dimulai dari angka 177013001
-	}
-
-	// Mengambil angka urut dari ID terakhir
-	if len(lastUserID) < 9 {
-		return "290220001", nil // Jika ID pertama kali, mulai dari 177013001
-	}
-
-	// Ambil bagian angka urut dari ID terakhir (3 digit terakhir)
-	lastIDNumeric, err := strconv.Atoi(lastUserID[6:])
-	if err != nil {
-		return "", err
-	}
-
-	// Tambahkan 1 ke ID terakhir
-	newIDNumeric := lastIDNumeric + 1
-	newID := fmt.Sprintf("290220%03d", newIDNumeric) // Format 3 digit angka
-
-	return newID, nil
-	
-}
-
-func Addmaterial(c *gin.Context) {
-	var userInput models.Material
-
-	// Generate User ID baru dengan format yang diinginkan
-	userID, err := GenerateUserID()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": "Failed to generate user ID"})
-		return
-	}
-
-	userID64, err := strconv.ParseInt(userID, 10, 64)  // Mengonversi string ke int64
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": "Failed to convert user ID to int64"})
-		return
-	}
-
-	// Assign ID yang baru ke userInput
-	
-	userInput.ID_supplier = userID64
-
-	if err := c.ShouldBindJSON(&userInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
-		return
-	}
-
-	// Simpan data supplier ke database
-	if err := models.DB.Create(&userInput).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-		return
-	}
-
-	// Respons sukses
-	c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Material Berhasil"})
+    c.JSON(http.StatusOK, gin.H{"Materials": materials})
 }
 
 
 
+//fungsi ini untuk mendapatkan data bahan hanya berdasarkan id
+func GetBahanByID(c *gin.Context) {
+    materialID := c.Param("id") // Ambil ID dari URL
+
+    var material models.Material
+    if err := models.DB.Preload("Supplier").First(&material, materialID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"Message": "Material tidak ditemukan!"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"Material": material})
+}
+
+
+//fungsi ini untuk edit bahan
+func EditBahan(c *gin.Context) {
+    materialID := c.Param("id") // ID dari URL
+    var userInput models.Material
+
+    // Bind JSON ke struct
+    if err := c.ShouldBindJSON(&userInput); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"Message": "Invalid request data: " + err.Error()})
+        return
+    }
+
+    var material models.Material
+    if err := models.DB.First(&material, materialID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"Message": "Material tidak ditemukan"})
+        return
+    }
+
+    // Update data bahan
+    material.Nama_bahan = userInput.Nama_bahan
+    material.Jumlah = userInput.Jumlah
+    material.Asal_bahan = userInput.Asal_bahan
+    material.Kategori = userInput.Kategori
+    material.Status = userInput.Status
+    material.Tanggal = userInput.Tanggal
+    material.ID_supplier = userInput.ID_supplier
+
+    if err := models.DB.Save(&material).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"Message": "Update Data Material Berhasil"})
+}
+
+
+//fungsi ini utnuk hapus bahan dari database
+func HapusBahan(c *gin.Context) {
+    materialID := c.Param("id") // Ambil ID dari URL
+
+    var material models.Material
+    if err := models.DB.First(&material, materialID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"Message": "Material tidak ditemukan!"})
+        return
+    }
+
+    if err := models.DB.Delete(&material).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"Message": "Hapus Data Material Berhasil"})
+}
+
+
+// Fungsi Ini Untuk Cek Apakah Supplier Ada PAda Data
 func checkSupplierExists(db *gorm.DB, supplierID int64) (bool, error) {
-	var supplier models.Material
-	result := db.First(&supplier, supplierID)
-	if result.Error != nil {
-		// Material tidak ditemukan
-		if result.Error == gorm.ErrRecordNotFound {
-			return false, nil
-		}
-		return false, result.Error
-	}
-	// Material ditemukan
-	return true, nil
+    var supplier models.Supplier // Pastikan kita mengecek di tabel Supplier, bukan Material
+    result := db.First(&supplier, "id_supplier = ?", supplierID)
+    
+    if result.Error != nil {
+        if result.Error == gorm.ErrRecordNotFound {
+            return false, nil // Supplier tidak ditemukan
+        }
+        return false, result.Error
+    }
+    return true, nil // Supplier ditemukan
 }
 
-func addBahan(c *gin.Context) {
-	var material models.Material
+//Fungsi Ini Untuk Menmabhak Data
+func Addbahan(c *gin.Context) {
+	var userInput models.Material
 
-	// Bind JSON ke struct Material
-	if err := c.ShouldBindJSON(&material); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request data"})
-		return
-	}
+    if err := c.ShouldBindJSON(&userInput); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
+        return
+    }
 
-	// Validasi bahwa ID_supplier ada di tabel Material
-	isExists, err := checkSupplierExists(models.DB, material.ID_supplier)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error checking supplier"})
-		return
-	}
-	if !isExists {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Material does not exist"})
-		return
-	}
+	if userInput.ID_bahan == 0 {
+        newID, err := GenerateMatsID()
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"Message": "Failed to generate Material ID"})
+            return
+        }
+        userInput.ID_bahan, _ = strconv.ParseInt(newID, 10, 64) // Konversi ke int64
+    }
 
-	// Simpan data Material ke database
-	if err := models.DB.Create(&material).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+    // Cek apakah supplier dengan ID tersebut ada
+    isExists, err := checkSupplierExists(models.DB, userInput.ID_supplier)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": "Error checking supplier"})
+        return
+    }
+    if !isExists {
+        c.JSON(http.StatusBadRequest, gin.H{"Message": "Supplier tidak ditemukan!"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "Material berhasil ditambahkan"})
+    // Simpan data material ke database
+    if err := models.DB.Create(&userInput).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Material Berhasil"})
+}
+
+
+//fungsi ini untuk custom id
+func GenerateMatsID() (string, error) {
+    var lastMatsID string
+
+    // Ambil ID terakhir dari database
+    err := models.DB.Model(&models.Material{}).
+        Select("id_bahan").
+        Order("id_bahan DESC").
+        Limit(1).
+        Pluck("id_bahan", &lastMatsID).
+        Error
+
+    if err != nil || lastMatsID == "" {
+        // Jika tidak ada data sebelumnya, mulai dari 3399001
+        return "3399001", nil
+    }
+
+    // Pastikan ID terakhir memiliki panjang yang sesuai
+    if len(lastMatsID) < 7 {
+        return "3399001", nil
+    }
+
+    // Ambil bagian angka urut (3 digit terakhir)
+    lastIDNumeric, err := strconv.Atoi(lastMatsID[4:]) // Ambil setelah "3399"
+    if err != nil {
+        return "", err
+    }
+
+    // Tambahkan 1 ke ID terakhir
+    newIDNumeric := lastIDNumeric + 1
+    newID := fmt.Sprintf("3399%03d", newIDNumeric) // Format: "3399XXX"
+
+    return newID, nil
 }
