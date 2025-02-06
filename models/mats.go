@@ -9,7 +9,7 @@ type Material struct {
 	Asal_bahan    string `gorm:"type varchar(255)" json:"asal_bahan"`
 	Kategori      string `gorm:"type varchar(255)" json:"kategori"`
 	Status        string `gorm:"type varchar(255)" json:"status"`
-	Tanggal       time.Time `gorm:"type timestamp" json:"tanggal"`
+	Tanggal       time.Time `gorm:"type timestamp" json:"created_at"`
 
 	//input foreign key untuk di tabel
 	ID_supplier int64 `gorm:"type:int;not null" json:"id_supplier"`

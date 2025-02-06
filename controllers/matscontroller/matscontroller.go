@@ -181,3 +181,34 @@ func GenerateMatsID() (string, error) {
 
     return newID, nil
 }
+
+func TambahStokBahan(c *gin.Context) {
+	var input struct {
+		ID_bahan int64 `json:"id_bahan"`
+		Jumlah   int64 `json:"jumlah"`
+	}
+
+	// Bind JSON input ke struct
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request data"})
+		return
+	}
+
+	// Cek apakah bahan dengan ID tersebut ada
+	var material models.Material
+	if err := models.DB.First(&material, input.ID_bahan).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Material tidak ditemukan"})
+		return
+	}
+
+	// Update stok bahan
+	material.Jumlah += input.Jumlah
+
+	if err := models.DB.Save(&material).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Gagal menambahkan stok"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Stok berhasil ditambahkan", "data": material})
+}
+
