@@ -66,6 +66,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("token", token, 3600, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"Message": "Login Berhasil!",
