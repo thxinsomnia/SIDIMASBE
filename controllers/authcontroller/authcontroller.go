@@ -67,8 +67,13 @@ func Login(c *gin.Context) {
 	}
 
 	c.SetCookie("token", token, 3600, "/", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"Message": "Login Berhasil!", "Token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Login Berhasil!",
+		"Token": token,
+		"Role": user.Role,  // Tambahkan Role ke response
+	})
 }
+
 
 // Register godoc
 //
