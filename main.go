@@ -49,6 +49,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	api.GET("/bahan/:id", matscontroller.GetBahanByID)
 	api.PUT("/ebahan/:id", matscontroller.EditBahan)
 	api.DELETE("/dbahan/:id", matscontroller.HapusBahan)
+	api.GET("/logs", matscontroller.LogsBahan)
 	api.POST("/addmenu", menucontroller.BuatMenu)
 	api.GET("/menu", menucontroller.AmbilDataMenu)
 	api.GET("/menu/:id", menucontroller.AmbilDataMenuID)

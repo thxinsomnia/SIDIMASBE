@@ -331,16 +331,23 @@ func BuatPorsiMenu(c *gin.Context) {
         return
     }
 
+    bahanMap := make(map[int64]models.Material)
+
     // Cek apakah stok bahan cukup
     for _, menuBahan := range menuBahans {
-        var bahan models.Material
-        if err := tx.First(&bahan, "id_bahan = ?", menuBahan.ID_bahan).Error; err != nil {
-            tx.Rollback()
-            c.JSON(http.StatusInternalServerError, gin.H{"Message": fmt.Sprintf("Bahan dengan ID %d tidak ditemukan", menuBahan.ID_bahan)})
-            return
+        if _, exists := bahanMap[menuBahan.ID_bahan]; !exists {
+            var bahan models.Material
+            if err := tx.First(&bahan, "id_bahan = ?", menuBahan.ID_bahan).Error; err != nil {
+                tx.Rollback()
+                c.JSON(http.StatusInternalServerError, gin.H{"Message": fmt.Sprintf("Bahan dengan ID %d tidak ditemukan", menuBahan.ID_bahan)})
+                return
+            }
+            bahanMap[menuBahan.ID_bahan] = bahan
         }
 
         totalKebutuhan := menuBahan.Kebutuhan * pesananInput.JumlahPorsi
+        bahan := bahanMap[menuBahan.ID_bahan]
+
         if bahan.Jumlah < totalKebutuhan {
             tx.Rollback()
             c.JSON(http.StatusBadRequest, gin.H{
@@ -351,17 +358,27 @@ func BuatPorsiMenu(c *gin.Context) {
         }
     }
 
-    // Kurangi stok bahan
+    // Kurangi stok bahan dan simpan log pengurangan bahan
     for _, menuBahan := range menuBahans {
-        var bahan models.Material
-        tx.First(&bahan, "id_bahan = ?", menuBahan.ID_bahan)
-
+        bahan := bahanMap[menuBahan.ID_bahan]
         totalKebutuhan := menuBahan.Kebutuhan * pesananInput.JumlahPorsi
         bahan.Jumlah -= totalKebutuhan
 
         if err := tx.Save(&bahan).Error; err != nil {
             tx.Rollback()
             c.JSON(http.StatusInternalServerError, gin.H{"Message": "Gagal mengupdate stok bahan"})
+            return
+        }
+
+        // Simpan log pengurangan bahan
+        logBahan := models.Log{
+            ID_bahan:        bahan.ID_bahan,
+            JumlahDigunakan: totalKebutuhan,
+            SisaBahan:       bahan.Jumlah,
+        }
+        if err := tx.Create(&logBahan).Error; err != nil {
+            tx.Rollback()
+            c.JSON(http.StatusInternalServerError, gin.H{"Message": "Gagal mencatat log pengurangan bahan"})
             return
         }
     }
@@ -387,5 +404,6 @@ func BuatPorsiMenu(c *gin.Context) {
         "TotalStokMenu": menu.Jumlah_porsi, // Menampilkan stok menu setelah ditambah
     })
 }
+
 
 

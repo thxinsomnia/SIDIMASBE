@@ -3,7 +3,7 @@ package matscontroller
 import (
 	"fmt"
 	"strconv"
-
+    "time"
 	"gorm.io/gorm"
 
 	"SIDIMASBE/models"
@@ -205,4 +205,64 @@ func TambahStokBahan(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Stok berhasil ditambahkan", "data": material})
 }
+
+func LogsBahan(c *gin.Context) {
+    var logs []struct {
+        IDLog          int64     `json:"id_log"`
+        IDBahan        int64     `json:"id_bahan"`
+        NamaBahan      string    `json:"nama_bahan"`
+        Tanggal        string    `json:"tanggal"` // Ubah ke string agar bisa diformat
+        JumlahDigunakan int64    `json:"jumlah_digunakan"`
+        SisaBahan      int64     `json:"sisa_bahan"`
+    }
+
+    var rawLogs []struct {
+        IDLog          int64     `json:"id_log"`
+        IDBahan        int64     `json:"id_bahan"`
+        NamaBahan      string    `json:"nama_bahan"`
+        Tanggal        time.Time `json:"tanggal"` // Tipe waktu asli dari DB
+        JumlahDigunakan int64    `json:"jumlah_digunakan"`
+        SisaBahan      int64     `json:"sisa_bahan"`
+    }
+
+    err := models.DB.Raw(`
+        SELECT lp.id_log, lp.id_bahan, m.nama_bahan, lp.tanggal, lp.jumlah_digunakan, lp.sisa_bahan 
+        FROM logs lp
+        JOIN materials m ON lp.id_bahan = m.id_bahan
+        ORDER BY lp.tanggal DESC
+    `).Scan(&rawLogs).Error
+
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"Message": "Gagal mengambil data log"})
+        return
+    }
+
+    // **Konversi waktu ke WIB**
+    loc, _ := time.LoadLocation("Asia/Jakarta") // Load zona waktu WIB
+    for _, log := range rawLogs {
+        logs = append(logs, struct {
+            IDLog          int64  `json:"id_log"`
+            IDBahan        int64  `json:"id_bahan"`
+            NamaBahan      string `json:"nama_bahan"`
+            Tanggal        string `json:"tanggal"`
+            JumlahDigunakan int64  `json:"jumlah_digunakan"`
+            SisaBahan      int64  `json:"sisa_bahan"`
+        }{
+            IDLog:          log.IDLog,
+            IDBahan:        log.IDBahan,
+            NamaBahan:      log.NamaBahan,
+            Tanggal:        log.Tanggal.In(loc).Format("2006-01-02 15:04:05"), // Konversi ke WIB & format
+            JumlahDigunakan: log.JumlahDigunakan,
+            SisaBahan:      log.SisaBahan,
+        })
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "Message": "Data log pengurangan bahan berhasil diambil",
+        "data":    logs,
+    })
+}
+
+
+
 
