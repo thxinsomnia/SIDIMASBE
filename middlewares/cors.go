@@ -8,10 +8,10 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
     return cors.New(cors.Config{
-        AllowOrigins:     []string{"*"}, // Bisa disesuaikan dengan domain yang diizinkan
+        AllowOrigins:     []string{"http://localhost:5173", "https://sidimas.vercel.app"}, // Bisa disesuaikan dengan domain yang diizinkan
         AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
         AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-        ExposeHeaders:    []string{"Content-Length"},
+        ExposeHeaders:    []string{"Content-Length","Set-Cookie"},
         AllowCredentials: true,
         MaxAge:           12 * time.Hour,
     })

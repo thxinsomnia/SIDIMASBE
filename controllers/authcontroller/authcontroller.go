@@ -66,10 +66,27 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("token", token, 3600, "/", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"Message": "Login Berhasil!", "Token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Login Berhasil!",
+		"Token": token,
+		"Role": user.Role,  // Tambahkan Role ke response
+	})
 }
 
+
+// Register godoc
+//
+//	@Summary		Register a new user
+//	@Description	register a new user by taking a JSON input
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		models.User			true	"User to register"
+//	@Success		200		{object}	map[string]string	"Successfully registered"
+//	@Failure		400		{object}	map[string]string	"Bad Request"
+//	@Router			/register [post]
 func Register(c *gin.Context) {
 	var userInput models.User
 	if err := c.ShouldBindJSON(&userInput); err != nil {
