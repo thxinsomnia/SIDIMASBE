@@ -33,8 +33,6 @@ func GetSupplier(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Suppliers": suppliers})
 }
 
-
-
 func GetSupplierByID(c *gin.Context) {
 	supplierID := c.Param("id") // Assuming the supplier ID is passed as a URL parameter
 
@@ -48,21 +46,6 @@ func GetSupplierByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"Supplier": supplier})
 }
-
-// func Addsupplier(c *gin.Context) {
-//     var userInput models.Supplier
-//     if err := c.ShouldBindJSON(&userInput); err != nil {
-//         c.JSON(http.StatusBadRequest, gin.H{"Message": err.Error()})
-//         return
-//     }
-
-//     if err := models.DB.Create(&userInput).Error; err != nil {
-//         c.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-//         return
-//     }
-
-//     c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Suppplier Berhasil"})
-// }
 
 // UpdateProduct updates an existing supplier in the database
 func UpdateSupplier(c *gin.Context) {

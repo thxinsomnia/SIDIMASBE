@@ -70,17 +70,6 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Message": "Login Berhasil!", "Token": token})
 }
 
-// Register godoc
-//
-//	@Summary		Register a new user
-//	@Description	register a new user by taking a JSON input
-//	@Tags			authentication
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body		models.User			true	"User to register"
-//	@Success		200		{object}	map[string]string	"Successfully registered"
-//	@Failure		400		{object}	map[string]string	"Bad Request"
-//	@Router			/register [post]
 func Register(c *gin.Context) {
 	var userInput models.User
 	if err := c.ShouldBindJSON(&userInput); err != nil {
@@ -103,16 +92,6 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Message": "Pendaftaran Berhasil"})
 }
 
-// Logout godoc
-//
-//	@Summary		Logout user
-//	@Description	clear JWT token from the cookie
-//	@Tags			authentication
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	map[string]string	"Successfully logged out"
-//	@Security		Bearer
-//	@Router			/logout [get]
 func Logout(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"Message": "Logout Berhasil!"})

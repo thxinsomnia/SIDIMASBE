@@ -24,8 +24,6 @@ func GetAllBahan(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"Materials": materials})
 }
 
-
-
 //fungsi ini untuk mendapatkan data bahan hanya berdasarkan id
 func GetBahanByID(c *gin.Context) {
     materialID := c.Param("id") // Ambil ID dari URL
@@ -38,7 +36,6 @@ func GetBahanByID(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"Material": material})
 }
-
 
 //fungsi ini untuk edit bahan
 func EditBahan(c *gin.Context) {
@@ -74,7 +71,6 @@ func EditBahan(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"Message": "Update Data Material Berhasil"})
 }
 
-
 //fungsi ini utnuk hapus bahan dari database
 func HapusBahan(c *gin.Context) {
     materialID := c.Param("id") // Ambil ID dari URL
@@ -92,7 +88,6 @@ func HapusBahan(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"Message": "Hapus Data Material Berhasil"})
 }
-
 
 // Fungsi Ini Untuk Cek Apakah Supplier Ada PAda Data
 func checkSupplierExists(db *gorm.DB, supplierID int64) (bool, error) {
@@ -145,7 +140,6 @@ func Addbahan(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"Message": "Tambah Data Material Berhasil"})
 }
-
 
 //fungsi ini untuk custom id
 func GenerateMatsID() (string, error) {
