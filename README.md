@@ -107,17 +107,6 @@ Dirilis di bawah **MIT License**. Cek file LICENSE untuk detail.
 
 ## 👤 Developer
 
-Dibuat oleh **thxinsomnia**
-Mahasiswa D4 Teknik Informatika ULBI – Fokus pada digitalisasi sosial berbasis teknologi
-
-```
-
----
-
-### 💡 Tips Tambahan
-
-- Tambahkan `LICENSE` dan `.env.example`
-- Sertakan dokumentasi endpoint, misalnya pakai **Swagger / Postman**
-- Bisa tambahkan badge build / coverage untuk menunjukkan kualitas
-
-```
+Made with 💙 by @thxinsomnia
+📚 Mahasiswa D4 Teknik Informatika, ULBI
+📌 Fokus: Web Dev, Backend, dan Sistem Informasi
