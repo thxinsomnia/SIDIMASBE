@@ -1,5 +1,3 @@
----
-
 ```markdown
 # 🧾 SIDIMASBE – Backend untuk SIDIMAS  
 *Backend system untuk SIDIMAS (Sistem Informasi Distribusi Makan Siang Gratis)*
