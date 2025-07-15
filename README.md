@@ -58,7 +58,6 @@ SIDIMASBE/
    ```bash
    git clone https://github.com/thxinsomnia/SIDIMASBE.git
    cd SIDIMASBE
-````
 
 2. Buat `.env`:
 
